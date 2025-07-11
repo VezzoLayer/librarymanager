@@ -4,10 +4,6 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class LibrarymanagerApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
+public class UserTest {
 
 }
