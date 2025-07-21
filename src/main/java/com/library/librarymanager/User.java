@@ -13,16 +13,17 @@ public class User {
 	public int getId() {
 		return id;
 	}
-	
+
 	public double getBalance() {
 		// TODO Auto-generated method stub
 		return balance;
 	}
 
-	public void deposit(int amount) {
+	public void deposit(double amount) {
 		// TODO Auto-generated method stub
+		if (amount < 0) {
+			throw new IllegalArgumentException("Negative amount: " + amount);
+		}
 		balance += amount;
 	}
-	
-
 }
