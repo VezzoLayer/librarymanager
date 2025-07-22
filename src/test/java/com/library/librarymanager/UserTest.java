@@ -35,4 +35,11 @@ public class UserTest {
 		assertEquals("Negative amount: -5.0", e.getMessage());
 		assertEquals(0, user.getBalance(), 0);
 	}
+
+	@Test
+	public void testDepositWhenAmountIsZeroIsOk() {
+		User user = new User();
+		user.deposit(0);
+		assertEquals(0, user.getBalance(), 0);
+	}
 }
