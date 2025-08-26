@@ -6,12 +6,15 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        java: [ 17 ]
+        include:
+          - os: ubuntu-latest
+          - java: 17
+            additional-maven-args: "-Pjacoco -DrepoToken=$COVERALLS_REPO_TOKEN coveralls:report"
 
-    name: Build with Java ${{ matrix.java }}
+    name: Build with Java ${{ matrix.java }} on ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK ${{ matrix.java }}
@@ -27,4 +30,15 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven
-      run: mvn clean verify
+      run: mvn clean verify ${{ matrix.additional-maven-args }}
+      env: 
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+    - name: Generate JUnit Report
+      run: mvn surefire-report:report-only site:site -DgenerateReports=false
+
+      if: ${{ failure() }}  # Archivio report per ispezionarli solo quando i test falliscono
+    - name: Archive JUnit Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: surefire-report-jdk-${{ matrix.java }}
+        path: '**/target/site'
