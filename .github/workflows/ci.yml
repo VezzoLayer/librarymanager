@@ -2,24 +2,47 @@ name: Build and Test
 
 on:
   push:
-    branches: [ master ]
   pull_request:
-    branches: [ master ]
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            java: 17
+            additional-maven-args: >
+              -Pjacoco
+              -DrepoToken=$COVERALLS_REPO_TOKEN
+              -DpullRequest=${{ github.event.pull_request.number }}
+              coveralls:report
 
-    runs-on: ubuntu-latest
-
+    name: Build with Java ${{ matrix.java }} on ${{ matrix.os }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 11
-      uses: actions/setup-java@v4
+    - uses: actions/checkout@v4
+    - name: Set up JDK ${{ matrix.java }}
+      uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
-        java-version: '11'
+        java-version: ${{ matrix.java }}
+        distribution: temurin
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
+        restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven
-      run: mvn clean install
+      run: mvn clean verify ${{ matrix.additional-maven-args }}
+      env: 
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+    - name: Generate JUnit Report
+      run: mvn surefire-report:report-only site:site -DgenerateReports=false
+
+      if: ${{ failure() }}  # Archivio report per ispezionarli solo quando i test falliscono
+    - name: Archive JUnit Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: surefire-report-jdk-${{ matrix.java }}
+        path: '**/target/site'
