@@ -171,6 +171,7 @@
 	</build>
 	
 	<profiles>
+		<!-- Profilo che lega l'esecuzione di jacoco e coveralls perché coveralls richiede i report di jacoco -->
 		<profile>
 			<id>mutation-testing</id>
 			<build>
@@ -183,13 +184,26 @@
 			</build>
 		</profile>
 		<profile>
-			<id>jacoco</id>
+			<id>coveralls</id>
 			<build>
 				<plugins>
 					<plugin>
 					<!-- Configurato in pluginManagment -->
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
+					</plugin>
+					<plugin>
+						<!-- Configurato in pluginManagment -->
+						<groupId>org.eluder.coveralls</groupId>
+						<artifactId>coveralls-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>verify</phase>
+								<goals>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
 					</plugin>
 				</plugins>
 			</build>
