@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env: 
-      workdir: com.library.librarymanager
+      workdir: librarymanager
     strategy:
       matrix:
         include:
